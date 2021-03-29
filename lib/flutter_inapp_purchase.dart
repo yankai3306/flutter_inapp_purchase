@@ -297,6 +297,18 @@ class FlutterInappPurchase {
   /// Add Store Payment (iOS only)
   /// Indicates that the App Store purchase should continue from the app instead of the App Store.
   ///
+  /// @returns {Future<String>}
+  Future getReceiptData() async {
+    if (_platform.isIOS) {
+      var result = await _channel.invokeMethod('requestReceipt');
+      return result;
+    }
+    return null;
+  }
+
+  /// Add Store Payment (iOS only)
+  /// Indicates that the App Store purchase should continue from the app instead of the App Store.
+  ///
   /// @returns {Future} will receive result from `purchasePromoted` listener.
   Future requestPromotedProductIOS() async {
     if (_platform.isIOS) {
@@ -343,6 +355,20 @@ class FlutterInappPurchase {
     if (_platform.isIOS) {
       dynamic result = await _channel.invokeMethod(
         'getPendingTransactions',
+      );
+
+      return extractPurchased(json.encode(result));
+    }
+    return [];
+  }
+
+  /// Get the transactions in IOS.
+  /// ios must ensure that the collection is empty before calling payment
+  /// @returns {Future<List<PurchasedItem>>}
+  Future<List<PurchasedItem>> getTransactionsIOS() async {
+    if (_platform.isIOS) {
+      dynamic result = await _channel.invokeMethod(
+        'getTransactionsIOS',
       );
 
       return extractPurchased(json.encode(result));
@@ -639,7 +665,7 @@ class FlutterInappPurchase {
         ..add(null)
         ..close();
       _purchaseController = null;
-    } 
+    }
     if (_purchaseErrorController != null) {
       _purchaseErrorController
         ..add(null)
